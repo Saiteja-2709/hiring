@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HITL Pvt Ltd — Candidate Assessment Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root{
+  --navy:#0a1628;--navy2:#112240;--accent:#2563eb;--accent-light:#dbeafe;
+  --success:#059669;--danger:#dc2626;--warn:#d97706;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--border2:#cbd5e1;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --r:10px;--r2:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.page{display:none;min-height:100vh;flex-direction:column}.page.active{display:flex}
+
+/* NAV */
+.topnav{background:var(--navy);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px}
+.logo-sq{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-sq svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2}
+.brand-name{font-size:15px;font-weight:600;color:#fff}.brand-sub{font-size:11px;color:#7dd3fc;letter-spacing:.06em;text-transform:uppercase}
+.nav-badge{font-size:11px;background:rgba(255,255,255,.12);color:#bfdbfe;padding:4px 12px;border-radius:20px;white-space:nowrap}
+
+/* STEP BAR */
+.step-bar{background:var(--navy2);padding:10px 24px;display:flex;align-items:center;gap:0;flex-shrink:0;overflow-x:auto}
+.step-item{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.step-num{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);color:#94a3b8;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0}
+.step-num.done{background:var(--success);color:#fff}.step-num.active{background:var(--accent);color:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.3)}
+.step-lbl{font-size:11px;color:#64748b;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+.step-lbl.active{color:#93c5fd}.step-lbl.done{color:#6ee7b7}
+.step-sep{width:24px;height:1px;background:rgba(255,255,255,.1);margin:0 4px;flex-shrink:0}
+@media(max-width:600px){.step-lbl{display:none}.step-sep{width:10px}}
+
+/* LAYOUT */
+.main{flex:1;padding:28px 24px;max-width:880px;width:100%;margin:0 auto}
+@media(max-width:600px){.main{padding:16px 14px}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:26px 30px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+@media(max-width:600px){.card{padding:18px 16px}}
+.card-hdr{display:flex;align-items:center;gap:13px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.card-icon{width:44px;height:44px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-icon svg{width:22px;height:22px;fill:none;stroke-width:2}
+.card-title{font-size:18px;font-weight:600}.card-sub{font-size:13px;color:var(--text2);margin-top:2px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:var(--r);font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .2s;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn-primary:hover:not(:disabled){background:#1d4ed8}
+.btn-outline{background:transparent;color:var(--accent);border-color:var(--accent)}.btn-outline:hover:not(:disabled){background:var(--accent-light)}
+.btn-danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn-sm{padding:7px 15px;font-size:13px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:20px}
+
+/* FORMS */
+.field{margin-bottom:15px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:5px}
+.field label .req{color:var(--danger)}
+.field input,.field select{width:100%;padding:10px 13px;border:1px solid var(--border2);border-radius:var(--r);font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);transition:border .2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:540px){.frow{grid-template-columns:1fr}}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase}
+.tag-blue{background:#dbeafe;color:#1e40af}.tag-green{background:#d1fae5;color:#065f46}
+.tag-amber{background:#fef3c7;color:#92400e}.tag-purple{background:#ede9fe;color:#5b21b6}
+.tag-red{background:#fee2e2;color:#991b1b}
+
+/* ALERTS */
+.alert{display:flex;align-items:flex-start;gap:10px;padding:13px 15px;border-radius:var(--r);font-size:14px;margin-bottom:14px;line-height:1.55}
+.alert svg{width:17px;height:17px;flex-shrink:0;margin-top:1px;fill:none;stroke-width:2;stroke:currentColor}
+.alert-warn{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.alert-info{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
+.alert-danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.alert-success{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0}
+
+/* INSTRUCTIONS */
+.inst-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px}
+@media(max-width:540px){.inst-grid{grid-template-columns:1fr}}
+.inst-item{display:flex;align-items:flex-start;gap:10px;padding:12px 13px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r)}
+.inst-num{width:23px;height:23px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.inst-text{font-size:13px;color:var(--text2);line-height:1.5}
+.inst-text strong{color:var(--text);display:block;margin-bottom:1px}
+.marks-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.marks-table th{background:var(--navy);color:#fff;padding:9px 13px;text-align:left;font-weight:500;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+.marks-table td{padding:9px 13px;border-bottom:1px solid var(--border)}
+.marks-table tr:last-child td{border-bottom:none;font-weight:600;background:#f0f9ff}
+.marks-table tr:nth-child(odd) td{background:var(--bg)}
+.agree-row{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);margin-top:14px}
+.agree-row input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex-shrink:0;margin-top:3px;cursor:pointer}
+.agree-row label{font-size:14px;color:var(--text);cursor:pointer;line-height:1.6}
+
+/* WEBCAM */
+.wc-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+#webcam-video{width:100%;max-width:420px;height:260px;object-fit:cover;border-radius:var(--r2);background:#0f172a;border:2px solid var(--border2)}
+#webcam-video.ok{border-color:var(--success)}
+.wc-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:420px}
+@media(max-width:460px){.wc-checks{grid-template-columns:1fr}}
+.chk-row{display:flex;align-items:center;gap:9px;padding:10px 13px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);font-size:13px;color:var(--text2)}
+.chk-row svg{width:15px;height:15px;flex-shrink:0;fill:none;stroke-width:2.5;stroke:currentColor}
+.c-ok{color:var(--success)}.c-fail{color:var(--danger)}.c-pend{color:var(--text3)}
+.sdot{width:9px;height:9px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.sdot.ok{background:var(--success);box-shadow:0 0 0 4px rgba(5,150,105,.18)}
+.sdot.pulse{animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.4)}50%{box-shadow:0 0 0 7px transparent}}
+
+/* COURSE CARDS */
+.course-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin-bottom:16px}
+.course-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r2);padding:19px;cursor:pointer;transition:all .2s;text-align:left;width:100%;font-family:var(--font)}
+.course-card:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(37,99,235,.1)}
+.course-card.selected{border-color:var(--accent);background:#f0f7ff}
+.course-icon{width:44px;height:44px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.course-icon svg{width:22px;height:22px;fill:none;stroke-width:1.8}
+.course-name{font-size:15px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.course-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px}
+.course-chk{width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;margin-top:6px}
+.course-card.selected .course-chk{opacity:1}
+.course-chk svg{width:11px;height:11px;fill:none;stroke:#fff;stroke-width:3}
+
+/* REG HEADER */
+.reg-hdr{background:var(--navy);border-radius:var(--r2) var(--r2) 0 0;padding:20px 30px;margin:-26px -30px 24px}
+@media(max-width:600px){.reg-hdr{margin:-18px -16px 18px;padding:16px;border-radius:var(--r) var(--r) 0 0}}
+.reg-hdr-sub{font-size:12px;color:#93c5fd;font-weight:500;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
+.reg-hdr-title{font-size:19px;font-weight:600;color:#fff}
+
+/* TEST TOP BAR */
+.test-topbar{background:var(--navy);padding:0 18px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:10px}
+.timer-box{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border-radius:8px;padding:5px 13px}
+.timer-box svg{width:13px;height:13px;fill:none;stroke:#93c5fd;stroke-width:2}
+.timer-val{font-family:var(--mono);font-size:15px;font-weight:500;color:#fff;letter-spacing:.06em}
+.timer-val.warn{color:#fbbf24}.timer-val.crit{color:#f87171;animation:blink .8s step-start infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.warn-counter{display:flex;align-items:center;gap:6px;background:rgba(220,38,38,.2);border:1px solid rgba(220,38,38,.4);border-radius:8px;padding:5px 12px;font-size:13px;color:#fca5a5}
+.warn-counter svg{width:14px;height:14px;fill:none;stroke:#fca5a5;stroke-width:2;flex-shrink:0}
+
+/* PROCTORING WARNING OVERLAY */
+#proct-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:20px}
+#proct-overlay.show{display:flex}
+.proct-box{background:#1a0a0a;border:2px solid var(--danger);border-radius:var(--r2);padding:36px 40px;text-align:center;max-width:460px;width:100%;animation:shake .5s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.proct-icon{width:68px;height:68px;border-radius:50%;background:rgba(220,38,38,.15);border:2px solid var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.proct-icon svg{width:34px;height:34px;fill:none;stroke:var(--danger);stroke-width:2}
+.proct-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:8px}
+.proct-body{font-size:14px;color:#fca5a5;line-height:1.65;margin-bottom:20px}
+.proct-warn-num{font-size:48px;font-weight:700;color:var(--danger);line-height:1;margin-bottom:4px;font-family:var(--mono)}
+.proct-warn-lbl{font-size:12px;color:#fca5a5;letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px}
+.proct-dismiss{background:var(--danger);color:#fff;border:none;border-radius:var(--r);padding:11px 28px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);width:100%}
+.proct-dismiss:hover{background:#b91c1c}
+
+/* DISQUALIFICATION OVERLAY */
+#disq-overlay{position:fixed;inset:0;background:#000;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+#disq-overlay.show{display:flex}
+.disq-box{max-width:500px}
+.disq-icon{width:80px;height:80px;border-radius:50%;background:rgba(220,38,38,.2);border:2px solid var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+.disq-icon svg{width:40px;height:40px;fill:none;stroke:var(--danger);stroke-width:2}
+.disq-title{font-size:26px;font-weight:700;color:#fff;margin-bottom:10px}
+.disq-body{font-size:15px;color:#94a3b8;line-height:1.7;margin-bottom:24px}
+.disq-ref{background:#1a1a1a;border:1px solid #333;border-radius:var(--r);padding:14px 20px;margin-bottom:24px}
+.disq-ref-lbl{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em}
+.disq-ref-val{font-family:var(--mono);font-size:15px;color:#f87171;margin-top:4px;letter-spacing:.04em}
+
+/* GEN PROGRESS */
+.gen-step{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;transition:all .3s}
+.gen-step.active{background:#eff6ff;border-color:#bfdbfe}
+.gen-step.done{background:#f0fdf4;border-color:#a7f3d0}
+.gen-step-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.gen-step-icon.pend{background:var(--bg);border:1px solid var(--border2);color:var(--text3)}
+.gen-step-icon.spin-state{background:#dbeafe;border:1px solid #bfdbfe}
+.gen-step-icon.done-state{background:#d1fae5;border:1px solid #a7f3d0;color:var(--success)}
+
+/* TEST LAYOUT */
+.test-main{display:flex;flex:1;overflow:hidden;min-height:0}
+@media(max-width:720px){.test-main{flex-direction:column}}
+.test-sidebar{width:216px;background:var(--surface);border-right:1px solid var(--border);padding:14px;flex-shrink:0;overflow-y:auto}
+@media(max-width:720px){.test-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);padding:10px 14px;overflow-x:auto;overflow-y:hidden;display:flex;gap:12px;align-items:flex-start;min-height:auto}}
+.sb-sec{margin-bottom:14px}
+@media(max-width:720px){.sb-sec{margin-bottom:0;flex-shrink:0}}
+.sb-sec-title{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+.sb-dots{display:flex;flex-wrap:wrap;gap:4px}
+@media(max-width:720px){.sb-dots{flex-wrap:nowrap}}
+.qdot{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg);font-size:11px;font-weight:600;color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .13s;flex-shrink:0}
+.qdot:hover{border-color:var(--accent)}.qdot.answered{background:#d1fae5;border-color:#a7f3d0;color:#065f46}
+.qdot.current{background:var(--accent);border-color:var(--accent);color:#fff}
+.test-content{flex:1;padding:22px 26px;overflow-y:auto}
+@media(max-width:600px){.test-content{padding:14px}}
+.q-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+.q-num{font-size:13px;font-weight:600;color:var(--text2)}
+.marks-pill{font-size:12px;background:var(--bg);border:1px solid var(--border2);border-radius:20px;padding:3px 12px;color:var(--text2);font-weight:500}
+.q-text{font-size:15px;font-weight:500;line-height:1.78;color:var(--text);margin:13px 0 17px;white-space:pre-wrap}
+.opt{display:flex;align-items:flex-start;gap:11px;padding:12px 15px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;transition:all .13s;margin-bottom:9px;text-align:left;width:100%;font-family:var(--font);font-size:14px;color:var(--text);line-height:1.55}
+.opt:hover:not([disabled]){border-color:var(--accent);background:#f0f7ff}
+.opt.sel{border-color:var(--accent);background:#e0f0ff;color:var(--accent)}
+.opt-ltr{width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.code-area{margin-top:6px}
+.code-lbl{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;display:block}
+.code-editor{width:100%;min-height:200px;background:#0f172a;color:#e2e8f0;font-family:var(--mono);font-size:13px;line-height:1.7;padding:15px;border:1.5px solid #1e293b;border-radius:var(--r);resize:vertical;outline:none}
+.code-editor:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-top:20px;gap:10px;flex-wrap:wrap}
+.sep{height:1px;background:var(--border);margin:16px 0}
+
+/* DONE PAGE */
+.done-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:34px 20px}
+.done-icon{width:76px;height:76px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.done-icon svg{width:36px;height:36px;fill:none;stroke:var(--accent);stroke-width:2}
+.ref-box{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:14px 22px;margin-bottom:20px;width:100%;max-width:420px}
+.ref-id{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--accent);margin-top:4px;letter-spacing:.04em}
+
+/* SPINNERS */
+.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+.spin-dark{border-color:var(--border2);border-top-color:var(--accent)}
+.spin-sm{width:14px;height:14px;border-width:2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* OVERLAY */
+#send-overlay{position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center}
+#send-overlay.show{display:flex}
+.sending-box{background:#fff;border-radius:var(--r2);padding:34px 48px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.sending-title{font-size:16px;font-weight:600;margin-top:14px}
+.sending-sub{font-size:13px;color:var(--text2);margin-top:5px}
+
+/* SCORE SECTION BREAKDOWN */
+.score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:20px}
+.score-cell{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px 10px;text-align:center}
+.score-val{font-size:22px;font-weight:600;margin-top:3px}
+.score-lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.score-sub{font-size:11px;color:var(--text3);margin-top:2px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ PAGE 1: INSTRUCTIONS ═══════════ -->
+<div class="page active" id="pg-instructions">
+  <nav class="topnav">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo-sq"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div><div class="brand-name">HITL Pvt Ltd</div><div class="brand-sub">Assessment Portal</div></div>
+    </div>
+    <div class="nav-badge">Recruitment Assessment</div>
+  </nav>
+  <div class="step-bar" id="sb1"></div>
+  <div class="main">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-icon" style="background:#dbeafe"><svg viewBox="0 0 24 24" stroke="#1d4ed8"><path d="M9 12h6M9 16h6M7 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2M9 4a2 2 0 012-2h2a2 2 0 012 2v0a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+        <div><div class="card-title">Assessment Instructions</div><div class="card-sub">Read every rule carefully — violations lead to immediate disqualification</div></div>
+      </div>
+
+      <div class="alert alert-danger">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span><strong>STRICT PROCTORING:</strong> You have exactly <strong>3 warnings</strong>. Switching tabs, minimising the window, or any suspicious activity counts as a violation. On the 3rd violation your assessment is <strong>permanently disqualified</strong> and cannot be resumed.</span>
+      </div>
+
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">Test structure &amp; marks</h3>
+      <table class="marks-table">
+        <thead><tr><th>Section</th><th>Questions</th><th>Marks each</th><th>Total</th><th>Type</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-blue">Section 1</span>&nbsp;Aptitude</td><td>30</td><td>2</td><td><strong>60</strong></td><td>MCQ — AI generated</td></tr>
+          <tr><td><span class="tag tag-green">Section 2</span>&nbsp;Technical MCQ</td><td>20</td><td>1</td><td><strong>20</strong></td><td>MCQ — AI generated</td></tr>
+          <tr><td><span class="tag tag-amber">Section 3</span>&nbsp;Coding / Practical</td><td>2</td><td>10</td><td><strong>20</strong></td><td>Written</td></tr>
+          <tr><td colspan="3" style="text-align:right;font-size:13px">Grand Total</td><td colspan="2"><strong style="color:var(--accent);font-size:16px">100 marks</strong></td></tr>
+        </tbody>
+      </table>
+
+      <div class="sep"></div>
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">Rules &amp; conduct</h3>
+      <div class="inst-grid">
+        <div class="inst-item"><div class="inst-num">1</div><div class="inst-text"><strong>Duration</strong>60 minutes. Timer starts on entering the test. Auto-submits on timeout.</div></div>
+        <div class="inst-item"><div class="inst-num">2</div><div class="inst-text"><strong>3 Warnings then DQ</strong>Each tab switch or window change = 1 warning. 3rd warning = instant disqualification, no appeal.</div></div>
+        <div class="inst-item"><div class="inst-num">3</div><div class="inst-text"><strong>Webcam required</strong>Face must be visible throughout. Leaving the webcam frame is flagged.</div></div>
+        <div class="inst-item"><div class="inst-num">4</div><div class="inst-text"><strong>No external aids</strong>Phones, books, notes, calculators, or any help are strictly prohibited.</div></div>
+        <div class="inst-item"><div class="inst-num">5</div><div class="inst-text"><strong>One window only</strong>Opening DevTools, right-clicking, or using keyboard shortcuts is blocked and flagged.</div></div>
+        <div class="inst-item"><div class="inst-num">6</div><div class="inst-text"><strong>Navigation</strong>Move freely between questions. Review before final submission.</div></div>
+        <div class="inst-item"><div class="inst-num">7</div><div class="inst-text"><strong>Stable internet</strong>Timer does not pause for connectivity issues. Ensure uninterrupted connection.</div></div>
+        <div class="inst-item"><div class="inst-num">8</div><div class="inst-text"><strong>Score confidential</strong>Scores are reviewed internally by HITL. Results shared via email by the recruitment team.</div></div>
+      </div>
+
+      <div class="agree-row">
+        <input type="checkbox" id="agree-chk" onchange="document.getElementById('inst-btn').disabled=!this.checked"/>
+        <label for="agree-chk">I have read and fully understood all the above instructions. I agree to HITL Pvt Ltd's assessment code of conduct and accept that malpractice or proctoring violations will result in immediate disqualification from all HITL recruitment activities.</label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="inst-btn" disabled onclick="goWebcam()">
+          Proceed to Webcam Check
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE 2: WEBCAM ═══════════ -->
+<div class="page" id="pg-webcam">
+  <nav class="topnav">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo-sq"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div><div class="brand-name">HITL Pvt Ltd</div><div class="brand-sub">Assessment Portal</div></div>
+    </div>
+    <div class="nav-badge">Step 2 of 5</div>
+  </nav>
+  <div class="step-bar" id="sb2"></div>
+  <div class="main">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-icon" style="background:#d1fae5"><svg viewBox="0 0 24 24" stroke="#059669"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+        <div><div class="card-title">Webcam Verification</div><div class="card-sub">Allow camera access for identity verification</div></div>
+      </div>
+
+      <!-- Loading -->
+      <div id="wc-loading" style="display:flex;flex-direction:column;align-items:center;padding:30px 0;gap:13px">
+        <div class="spin spin-dark" style="width:32px;height:32px;border-width:3px"></div>
+        <div style="font-size:14px;color:var(--text2)">Requesting camera permission…</div>
+        <div style="font-size:12px;color:var(--text3);text-align:center;max-width:340px">A popup may appear — click <strong>Allow</strong> to continue.</div>
+      </div>
+
+      <!-- Success -->
+      <div id="wc-success" style="display:none">
+        <div class="wc-wrap">
+          <video id="webcam-video" autoplay muted playsinline></video>
+          <div class="wc-checks">
+            <div class="chk-row" id="chk-cam"><svg class="c-pend" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Camera access</span></div>
+            <div class="chk-row" id="chk-stream"><svg class="c-pend" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Video stream active</span></div>
+            <div class="chk-row" id="chk-light"><svg class="c-pend" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Lighting OK</span></div>
+            <div class="chk-row" id="chk-conn"><svg class="c-pend" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Connection stable</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:14px"><div class="sdot pulse" id="wc-dot"></div><span id="wc-msg" style="color:var(--text2)">Checking…</span></div>
+        </div>
+        <div class="alert alert-info" style="margin-top:14px">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Face must remain clearly visible and well-lit throughout the entire assessment.</span>
+        </div>
+      </div>
+
+      <!-- Denied -->
+      <div id="wc-denied" style="display:none">
+        <div class="alert alert-warn" style="margin-bottom:14px">
+          <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span id="wc-deny-msg"><strong>Camera access denied.</strong> Follow the steps below then click Try Again.</span>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:12px">How to allow camera access:</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <div style="padding:11px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)">
+              <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px">🔵 Chrome / Edge / Brave</div>
+              <ol style="font-size:12px;color:var(--text2);padding-left:16px;line-height:1.8"><li>Click 🔒 lock icon in address bar</li><li>Set Camera → <strong>Allow</strong></li><li>Click Try Again below</li></ol>
+            </div>
+            <div style="padding:11px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)">
+              <div style="font-size:12px;font-weight:600;color:#e25822;margin-bottom:6px">🦊 Firefox</div>
+              <ol style="font-size:12px;color:var(--text2);padding-left:16px;line-height:1.8"><li>Click camera 🎥 icon in address bar</li><li>Choose <strong>Allow Camera</strong></li><li>Click Try Again below</li></ol>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:13px;margin-bottom:4px;font-size:13px;color:var(--text2)">
+          <strong style="color:var(--text);display:block;margin-bottom:4px">No camera device?</strong>
+          You may still proceed — the assessment team will be notified. Your result will not be blocked by a missing camera.
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="retryWebcam()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>Try Again
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="skipWebcam()">Continue without camera</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline btn-sm" onclick="showPage('pg-instructions')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>Back
+        </button>
+        <button class="btn btn-primary" id="wc-next-btn" disabled onclick="showPage('pg-register')">
+          Proceed to Registration
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE 3: REGISTRATION ═══════════ -->
+<div class="page" id="pg-register">
+  <nav class="topnav">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo-sq"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div><div class="brand-name">HITL Pvt Ltd</div><div class="brand-sub">Assessment Portal</div></div>
+    </div>
+    <div class="nav-badge">Step 3 of 5</div>
+  </nav>
+  <div class="step-bar" id="sb3"></div>
+  <div class="main">
+    <div class="card">
+      <div class="reg-hdr"><div class="reg-hdr-sub">HITL Pvt Ltd — Candidate Registration</div><div class="reg-hdr-title">Enter your details &amp; select assessment track</div></div>
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:13px">Personal information</h3>
+      <div class="frow">
+        <div class="field"><label>Full name <span class="req">*</span></label><input type="text" id="r-name" placeholder="e.g. Ravi Kumar"/></div>
+        <div class="field"><label>Date of birth <span class="req">*</span></label><input type="date" id="r-dob"/></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>Email address <span class="req">*</span></label><input type="email" id="r-email" placeholder="you@example.com"/></div>
+        <div class="field"><label>Contact number <span class="req">*</span></label><input type="tel" id="r-phone" placeholder="+91 98765 43210"/></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>College / Institution <span class="req">*</span></label><input type="text" id="r-college" placeholder="e.g. JNTU Hyderabad"/></div>
+        <div class="field"><label>Degree &amp; Branch <span class="req">*</span></label><input type="text" id="r-degree" placeholder="e.g. B.Tech — CSE"/></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>Year of passing <span class="req">*</span></label>
+          <select id="r-year"><option value="">Select year</option><option>2023</option><option>2024</option><option>2025</option><option>2026</option><option>2027</option></select>
+        </div>
+        <div class="field"><label>CGPA / Percentage</label><input type="text" id="r-cgpa" placeholder="e.g. 8.2 / 82%"/></div>
+      </div>
+      <div class="sep"></div>
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:5px">Select assessment track <span class="req">*</span></h3>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:13px">AI will generate 30 aptitude + 20 technical MCQ + 2 coding questions unique to your session.</p>
+      <div class="course-grid">
+        <button class="course-card" onclick="selCourse('java')" id="cc-java">
+          <div class="course-icon" style="background:#dbeafe"><svg viewBox="0 0 24 24" stroke="#1e40af"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <div class="course-name">Full Stack Java</div>
+          <div class="course-desc">Java Core · Spring Boot · REST APIs · SQL · HTML/CSS/JS · Git</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px"><span class="tag tag-blue">Java</span><span class="tag tag-blue">Spring</span><span class="tag tag-blue">SQL</span></div>
+          <div class="course-chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </button>
+        <button class="course-card" onclick="selCourse('powerbi')" id="cc-powerbi">
+          <div class="course-icon" style="background:#d1fae5"><svg viewBox="0 0 24 24" stroke="#065f46"><rect x="18" y="3" width="3" height="18"/><rect x="12" y="8" width="3" height="13"/><rect x="6" y="13" width="3" height="8"/><rect x="0" y="17" width="3" height="4"/></svg></div>
+          <div class="course-name">Power BI</div>
+          <div class="course-desc">DAX · Data Modeling · Power Query · Reports · Dashboards · M Language</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px"><span class="tag tag-green">DAX</span><span class="tag tag-green">Power Query</span></div>
+          <div class="course-chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </button>
+        <button class="course-card" onclick="selCourse('analytics')" id="cc-analytics">
+          <div class="course-icon" style="background:#fef3c7"><svg viewBox="0 0 24 24" stroke="#92400e"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 012 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg></div>
+          <div class="course-name">Data Analytics</div>
+          <div class="course-desc">Python · Pandas · SQL · Statistics · Visualisation · ML Basics · Excel</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px"><span class="tag tag-amber">Python</span><span class="tag tag-amber">SQL</span><span class="tag tag-amber">Stats</span></div>
+          <div class="course-chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </button>
+        <button class="course-card" onclick="selCourse('python')" id="cc-python">
+          <div class="course-icon" style="background:#ede9fe"><svg viewBox="0 0 24 24" stroke="#5b21b6"><path d="M12 2C6.48 2 4 4.48 4 7v2h8V8h4v3H8C5.79 11 4 12.79 4 15v2c0 2.21 1.79 4 4 4h8c2.21 0 4-1.79 4-4v-2h-8v1H8v-3h8c2.21 0 4-1.79 4-4V7c0-2.52-2.48-5-8-5z"/></svg></div>
+          <div class="course-name">Python Development</div>
+          <div class="course-desc">Core Python · OOP · DSA · File I/O · Libraries · Django/Flask Basics</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px"><span class="tag tag-purple">Python</span><span class="tag tag-purple">OOP</span><span class="tag tag-purple">DSA</span></div>
+          <div class="course-chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </button>
+      </div>
+      <div id="reg-err" class="alert alert-danger" style="display:none">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <span id="reg-err-txt">Please fill all required fields and select a course.</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline btn-sm" onclick="showPage('pg-webcam')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>Back
+        </button>
+        <button class="btn btn-primary" onclick="regNext()">
+          Generate &amp; Start Assessment
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE 3.5: GENERATING ═══════════ -->
+<div class="page" id="pg-generating">
+  <nav class="topnav">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo-sq"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div><div class="brand-name">HITL Pvt Ltd</div><div class="brand-sub">Assessment Portal</div></div>
+    </div>
+    <div class="nav-badge">Preparing assessment…</div>
+  </nav>
+  <div class="main" style="display:flex;align-items:center;justify-content:center;flex:1">
+    <div style="width:100%;max-width:500px">
+      <div class="card">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="width:56px;height:56px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:600;margin-bottom:5px">Generating your assessment</div>
+          <div style="font-size:13px;color:var(--text2)">AI is creating <strong id="gen-course-name">—</strong> questions unique to your session</div>
+        </div>
+        <div id="gen-steps"></div>
+        <div style="margin-top:18px">
+          <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid var(--border)">
+            <div id="gen-bar" style="height:100%;background:linear-gradient(90deg,var(--accent),#60a5fa);border-radius:3px;width:0%;transition:width .5s ease"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--text3)">
+            <span id="gen-status-txt">Starting…</span>
+            <span id="gen-pct-txt">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE 4: TEST ═══════════ -->
+<div class="page" id="pg-test" style="flex-direction:column;min-height:100vh">
+  <nav class="test-topbar">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div class="logo-sq" style="width:30px;height:30px"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#fff">HITL Pvt Ltd</div>
+        <div style="font-size:11px;color:#7dd3fc" id="t-cname">Assessment</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+      <div class="warn-counter" id="warn-counter" style="display:none">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Warnings: <strong id="warn-num">0</strong>/3
+      </div>
+      <div class="timer-box">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="timer-val" id="timer">60:00</span>
+      </div>
+    </div>
+  </nav>
+  <div class="test-main">
+    <aside class="test-sidebar" id="test-sidebar"></aside>
+    <div class="test-content" id="test-content">
+      <div class="q-hdr"><span class="q-num" id="q-num-lbl"></span><span class="marks-pill" id="q-marks-lbl"></span></div>
+      <div style="margin-bottom:10px"><span class="tag" id="q-sec-tag"></span></div>
+      <p class="q-text" id="q-text"></p>
+      <div id="q-opts"></div>
+      <div class="code-area" id="q-code-area" style="display:none">
+        <span class="code-lbl">Your solution</span>
+        <textarea class="code-editor" id="code-editor" spellcheck="false" placeholder="// Write your complete solution here..."></textarea>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+          <button class="btn btn-sm btn-outline" onclick="saveCode()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save
+          </button>
+          <span id="code-saved" style="font-size:12px;color:var(--success);display:none">✓ Saved</span>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-outline btn-sm" id="btn-prev" onclick="qNav(-1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>Previous
+        </button>
+        <button class="btn btn-primary btn-sm" id="btn-next" onclick="qNav(1)">
+          Next<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="btn btn-sm" onclick="confirmSubmit()" style="border-color:var(--danger);color:var(--danger)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Submit assessment
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE 5: DONE ═══════════ -->
+<div class="page" id="pg-done">
+  <nav class="topnav">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo-sq"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div><div class="brand-name">HITL Pvt Ltd</div><div class="brand-sub">Assessment Portal</div></div>
+    </div>
+  </nav>
+  <div class="main" style="display:flex;align-items:center;justify-content:center;flex:1">
+    <div style="width:100%;max-width:540px">
+      <div class="card">
+        <div class="done-wrap">
+          <div class="done-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h1 style="font-size:22px;font-weight:600;margin-bottom:9px">Assessment Submitted!</h1>
+          <p style="font-size:15px;color:var(--text2);max-width:460px;line-height:1.7;margin-bottom:24px">
+            Thank you, <strong id="done-name"></strong>. Your responses have been recorded and forwarded to the HITL recruitment team. You will be contacted within <strong>5–7 working days</strong>.
+          </p>
+          <div class="ref-box">
+            <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em">Reference ID</div>
+            <div class="ref-id" id="done-ref"></div>
+            <div style="font-size:12px;color:var(--text3);margin-top:5px">Keep this for your records.</div>
+          </div>
+          <div class="alert alert-info" style="text-align:left;width:100%">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Assessment scores are reviewed internally by HITL Pvt Ltd. Results will be shared via your registered email address only.</span>
+          </div>
+          <p style="font-size:13px;color:var(--text3)">You may now close this window.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PROCTORING WARNING OVERLAY ═══════════ -->
+<div id="proct-overlay">
+  <div class="proct-box">
+    <div class="proct-icon">
+      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div class="proct-warn-num" id="po-num">1</div>
+    <div class="proct-warn-lbl">Warning of 3</div>
+    <div class="proct-title" id="po-title">Violation Detected</div>
+    <div class="proct-body" id="po-body">You have switched away from the assessment window. This has been recorded. You have 2 remaining warnings before disqualification.</div>
+    <button class="proct-dismiss" onclick="dismissWarning()">I understand — Continue Assessment</button>
+  </div>
+</div>
+
+<!-- ═══════════ DISQUALIFICATION OVERLAY ═══════════ -->
+<div id="disq-overlay">
+  <div class="disq-box">
+    <div class="disq-icon">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    </div>
+    <div class="disq-title" style="color:#fff">Assessment Disqualified</div>
+    <div class="disq-body">You have received 3 proctoring violations. Your assessment has been <strong style="color:#f87171">permanently terminated</strong> and cannot be resumed. Your result has been flagged to the HITL recruitment team.</div>
+    <div class="disq-ref">
+      <div class="disq-ref-lbl">Disqualification Reference</div>
+      <div class="disq-ref-val" id="disq-ref">—</div>
+    </div>
+    <p style="font-size:13px;color:#64748b">You may close this window.</p>
+  </div>
+</div>
+
+<!-- ═══════════ SUBMIT OVERLAY ═══════════ -->
+<div id="send-overlay">
+  <div class="sending-box">
+    <div class="spin spin-dark" style="width:34px;height:34px;border-width:3px"></div>
+    <div class="sending-title">Submitting your assessment…</div>
+    <div class="sending-sub">Please do not close this window</div>
+  </div>
+</div>
+
+<script>
+/* ══ EMAIL JS CONFIG — replace with your values ══ */
+const EMAILJS_SVC = 'service_yjgwcfb';
+const EMAILJS_TPL = 'template_cj4ulso';
+const EMAILJS_KEY = 'Qi885cOO1qWM8QhmG';
+const ADMIN_EMAIL = 'saiteja.jinkala27@gmail.com';
+
+/* ══ COURSE CONFIG ══ */
+const COURSES = {
+  java: {
+    name: 'Full Stack Java',
+    aptTopic: 'general aptitude questions asked in MNC companies like TCS, Infosys, Wipro, Accenture, Cognizant — covering logical reasoning, quantitative aptitude (profit & loss, time-work, percentages, ratios, averages, simple & compound interest, trains & distances), number series, data interpretation, blood relations, coding-decoding, verbal ability',
+    techTopic: 'Full Stack Java interview questions asked in MNC companies — covering Java OOP concepts, JVM architecture, String handling, Collections Framework, exception handling, multithreading, Spring Boot annotations, REST API design, JPA/Hibernate, Maven/Gradle, SQL queries and joins, HTML/CSS/JS basics, Git commands, design patterns, SOLID principles',
+    codingTopic: 'Java full stack coding problems frequently asked in MNC interviews',
+    techTag: 'tag-blue'
+  },
+  powerbi: {
+    name: 'Power BI',
+    aptTopic: 'general aptitude questions asked in MNC companies like TCS, Infosys, Wipro, Accenture — covering logical reasoning, quantitative aptitude (data interpretation, percentages, profit & loss, time-work, averages, ratios), number series, tables & graphs analysis, verbal ability',
+    techTopic: 'Power BI interview questions asked in MNC companies — covering DAX functions (CALCULATE, FILTER, SUMX, RELATED, RANKX, DISTINCTCOUNT), data modeling, star schema vs snowflake, Power Query transformations, M language, DirectQuery vs Import, row-level security, report design, KPIs, slicers, bookmarks, Power BI Service, deployment pipelines',
+    codingTopic: 'Power BI practical problems — DAX formula writing, dashboard design scenarios',
+    techTag: 'tag-green'
+  },
+  analytics: {
+    name: 'Data Analytics',
+    aptTopic: 'general aptitude questions asked in MNC companies like TCS, Infosys, Wipro, Accenture — covering logical reasoning, quantitative aptitude (statistics, averages, percentages, ratios, data interpretation, tables & charts), number series, verbal ability, analytical reasoning',
+    techTopic: 'Data Analytics interview questions asked in MNC companies — covering Python (pandas, numpy, list comprehensions, lambda functions), SQL (GROUP BY, HAVING, window functions, CTEs, subqueries, JOINS), statistics (mean/median/mode, standard deviation, normal distribution, hypothesis testing), data cleaning, EDA, data visualisation (matplotlib, seaborn), machine learning basics (regression, classification, overfitting)',
+    codingTopic: 'Data Analytics coding problems — Python data manipulation with pandas, SQL analytical queries',
+    techTag: 'tag-amber'
+  },
+  python: {
+    name: 'Python Development',
+    aptTopic: 'general aptitude questions asked in MNC companies like TCS, Infosys, Wipro, Accenture — covering logical reasoning, quantitative aptitude (profit & loss, percentages, time-work, number series, averages), coding-decoding, verbal ability, analytical thinking',
+    techTopic: 'Python development interview questions asked in MNC companies — covering Python data types, list/dict/set/tuple operations, OOP (inheritance, polymorphism, encapsulation, abstraction), decorators, generators, iterators, lambda functions, file I/O, exception handling, modules and packages, regular expressions, multithreading, virtual environments, PIP, Django/Flask basics, REST APIs with Python',
+    codingTopic: 'Python coding problems on algorithms, OOP, data structures, and problem solving',
+    techTag: 'tag-purple'
+  }
+};
+
+/* ══ STATE ══ */
+let camStream=null, selCourseId=null, regData={};
+let allQs=[], curIdx=0, answers={}, codeAns={};
+let timeLeft=3600, timerInt=null, warnings=0, submitted=false, disqualified=false;
+
+/* ══ STEP BAR ══ */
+function makeSB(active){
+  const steps=[{n:1,l:'Instructions'},{n:2,l:'Webcam'},{n:3,l:'Registration'},{n:4,l:'Assessment'},{n:5,l:'Complete'}];
+  return steps.map((s,i)=>{
+    const nc=s.n<active?'done':s.n===active?'active':'';
+    const lc=s.n<active?'done':s.n===active?'active':'';
+    return `<div class="step-item"><div class="step-num ${nc}">${s.n<active?'✓':s.n}</div><div class="step-lbl ${lc}">${s.l}</div></div>${i<4?'<div class="step-sep"></div>':''}`;
+  }).join('');
+}
+document.getElementById('sb1').innerHTML=makeSB(1);
+document.getElementById('sb2').innerHTML=makeSB(2);
+document.getElementById('sb3').innerHTML=makeSB(3);
+
+/* ══ PAGE NAV ══ */
+function showPage(id){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+
+/* ══ WEBCAM ══ */
+function goWebcam(){
+  showPage('pg-webcam');
+  document.getElementById('wc-loading').style.display='flex';
+  document.getElementById('wc-success').style.display='none';
+  document.getElementById('wc-denied').style.display='none';
+  document.getElementById('wc-next-btn').disabled=true;
+  startWebcam();
+}
+function setChk(id,ok){
+  const el=document.getElementById(id); if(!el)return;
+  const lbl=el.querySelector('span').outerHTML;
+  el.innerHTML=(ok?`<svg class="c-ok" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`:`<svg class="c-fail" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`)+lbl;
+}
+async function startWebcam(){
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){showDenied('Your browser does not support camera access. Use Chrome, Firefox, or Edge.');return;}
+  if(location.protocol==='file:'){showDenied('Camera requires HTTPS. Host this on GitHub Pages — camera does not work from a local file.');return;}
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+    camStream=s;
+    document.getElementById('wc-loading').style.display='none';
+    document.getElementById('wc-denied').style.display='none';
+    document.getElementById('wc-success').style.display='block';
+    const v=document.getElementById('webcam-video'); v.srcObject=s; v.classList.add('ok');
+    const dot=document.getElementById('wc-dot'); dot.classList.remove('pulse'); dot.classList.add('ok');
+    document.getElementById('wc-msg').textContent='Camera connected ✓';
+    setChk('chk-cam',true);
+    setTimeout(()=>setChk('chk-stream',true),500);
+    setTimeout(()=>setChk('chk-light',true),1000);
+    setTimeout(()=>{setChk('chk-conn',true);document.getElementById('wc-next-btn').disabled=false;},1600);
+  }catch(e){
+    const n=e.name||'';
+    let msg='<strong>Camera access denied.</strong> Follow the steps and click Try Again.';
+    if(n==='NotFoundError'||n==='DevicesNotFoundError') msg='<strong>No camera found.</strong> You may still proceed — the team will be notified.';
+    else if(n==='NotReadableError'||n==='TrackStartError') msg='<strong>Camera is used by another app.</strong> Close Zoom/Teams/etc and click Try Again.';
+    showDenied(msg);
+  }
+}
+function showDenied(msg){
+  document.getElementById('wc-loading').style.display='none';
+  document.getElementById('wc-success').style.display='none';
+  document.getElementById('wc-denied').style.display='block';
+  document.getElementById('wc-deny-msg').innerHTML=msg;
+  document.getElementById('wc-next-btn').disabled=false;
+}
+function retryWebcam(){document.getElementById('wc-loading').style.display='flex';document.getElementById('wc-denied').style.display='none';document.getElementById('wc-success').style.display='none';document.getElementById('wc-next-btn').disabled=true;setTimeout(startWebcam,400);}
+function skipWebcam(){warnings++;showPage('pg-register');}
+
+/* ══ REGISTRATION ══ */
+function selCourse(id){
+  selCourseId=id;
+  document.querySelectorAll('.course-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('cc-'+id).classList.add('selected');
+}
+function regNext(){
+  const flds={name:'r-name',dob:'r-dob',email:'r-email',phone:'r-phone',college:'r-college',degree:'r-degree',year:'r-year'};
+  const errEl=document.getElementById('reg-err'), errTxt=document.getElementById('reg-err-txt');
+  for(const[k,id] of Object.entries(flds)){
+    if(!document.getElementById(id).value.trim()){errEl.style.display='flex';errTxt.textContent=`Please fill in your ${k}.`;return;}
+  }
+  if(!document.getElementById('r-email').value.includes('@')){errEl.style.display='flex';errTxt.textContent='Enter a valid email.';return;}
+  if(!selCourseId){errEl.style.display='flex';errTxt.textContent='Please select an assessment track.';return;}
+  errEl.style.display='none';
+  regData={
+    name:document.getElementById('r-name').value.trim(),
+    dob:document.getElementById('r-dob').value,
+    email:document.getElementById('r-email').value.trim(),
+    phone:document.getElementById('r-phone').value.trim(),
+    college:document.getElementById('r-college').value.trim(),
+    degree:document.getElementById('r-degree').value.trim(),
+    year:document.getElementById('r-year').value,
+    cgpa:document.getElementById('r-cgpa').value.trim()||'N/A',
+    course:selCourseId
+  };
+  generateAndStart();
+}
+
+/* ══ AI QUESTION GENERATION ══ */
+
+// Sub-step UI tracker
+let genSubStep=0, genTotalSubSteps=0;
+
+async function generateAndStart(){
+  showPage('pg-generating');
+  const c=COURSES[selCourseId];
+  document.getElementById('gen-course-name').textContent=c.name;
+
+  // We break 30 aptitude into 3×10, 20 tech into 2×10, coding 1×2 = 6 API calls total
+  // Each call is small enough to never truncate
+  const BATCH=10;
+  const aptBatches = Math.ceil(30/BATCH);   // 3
+  const techBatches= Math.ceil(20/BATCH);   // 2
+  genTotalSubSteps = aptBatches + techBatches + 1;
+  genSubStep=0;
+
+  const mainSteps=[
+    {id:'gs1',label:'Generating 30 aptitude questions (MNC level)',type:'apt'},
+    {id:'gs2',label:'Generating 20 technical MCQ questions',type:'tech'},
+    {id:'gs3',label:'Generating 2 coding / practical problems',type:'coding'}
+  ];
+
+  const gsEl=document.getElementById('gen-steps');
+  gsEl.innerHTML=mainSteps.map((s,i)=>`
+    <div class="gen-step" id="${s.id}">
+      <div class="gen-step-icon pend" id="${s.id}-icon">${i+1}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--text)">${s.label}</div>
+        <div style="font-size:12px;color:var(--text3)" id="${s.id}-sub">Waiting…</div>
+      </div>
+    </div>`).join('');
+
+  allQs=[]; answers={}; codeAns={}; curIdx=0; warnings=0; submitted=false; disqualified=false; timeLeft=3600;
+
+  /* ── APTITUDE: 3 batches of 10 ── */
+  setGenStep('gs1','spin-state','','Generating 30 aptitude questions…','Batch 1 of 3…');
+  updateBar(5,'Generating aptitude questions…','5%');
+  const aptQs=[];
+  for(let b=0;b<aptBatches;b++){
+    setGenStepSub('gs1',`Batch ${b+1} of ${aptBatches} — ${(b+1)*10} / 30 questions`);
+    const batch=await genBatch({
+      count:BATCH, section:'aptitude', marks:2, type:'mcq',
+      topic:c.aptTopic,
+      extra:`This is batch ${b+1} of ${aptBatches}. Generate questions on DIFFERENT sub-topics than previous batches. Sub-topics to cover in this batch: ${b===0?'logical reasoning, number series, blood relations, coding-decoding':b===1?'quantitative aptitude (profit & loss, percentages, averages, ratios, time & work)':'quantitative aptitude (simple & compound interest, time-speed-distance, trains, pipes & cisterns), data interpretation'}`
+    });
+    aptQs.push(...batch);
+    genSubStep++;
+    updateBar(5+Math.round((genSubStep/genTotalSubSteps)*80), `Aptitude: ${aptQs.length}/30 generated`, Math.round(5+(genSubStep/genTotalSubSteps)*80)+'%');
+  }
+  allQs.push(...aptQs);
+  setGenStep('gs1','done-state','✓','30 aptitude questions',`${aptQs.length} questions ready`);
+
+  /* ── TECHNICAL MCQ: 2 batches of 10 ── */
+  setGenStep('gs2','spin-state','','Generating 20 technical MCQ questions…','Batch 1 of 2…');
+  const techQs=[];
+  for(let b=0;b<techBatches;b++){
+    setGenStepSub('gs2',`Batch ${b+1} of ${techBatches} — ${(b+1)*10} / 20 questions`);
+    const batch=await genBatch({
+      count:BATCH, section:'mcq', marks:1, type:'mcq',
+      topic:c.techTopic,
+      extra:`This is batch ${b+1} of ${techBatches}. Generate questions on DIFFERENT topics than batch ${b}. Include output-prediction questions, conceptual questions, and scenario-based questions.`
+    });
+    techQs.push(...batch);
+    genSubStep++;
+    updateBar(5+Math.round((genSubStep/genTotalSubSteps)*80), `Technical: ${techQs.length}/20 generated`, Math.round(5+(genSubStep/genTotalSubSteps)*80)+'%');
+  }
+  allQs.push(...techQs);
+  setGenStep('gs2','done-state','✓','20 technical MCQ questions',`${techQs.length} questions ready`);
+
+  /* ── CODING: 1 call of 2 problems ── */
+  setGenStep('gs3','spin-state','','Generating 2 coding problems…','Creating problems…');
+  setGenStepSub('gs3','Writing problem statements…');
+  const codeQs=await genBatch({count:2, section:'coding', marks:10, type:'coding', topic:c.codingTopic, extra:''});
+  allQs.push(...codeQs);
+  genSubStep++;
+  setGenStep('gs3','done-state','✓','2 coding problems',`${codeQs.length} problems ready`);
+
+  updateBar(100,`All ${allQs.length} questions ready!`,'100%');
+  await sleep(600);
+
+  buildSidebar();
+  renderQ();
+  setupProctoring();
+  startTimer();
+  showPage('pg-test');
+  document.getElementById('t-cname').textContent=regData.name+' · '+c.name;
+}
+
+function setGenStep(id, iconCls, iconTxt, labelTxt, subTxt){
+  const el=document.getElementById(id); if(!el)return;
+  el.className="gen-step"+(iconCls==="done-state"?" done":iconCls==="spin-state"?" active":"");
+  const iconContent= iconCls==="spin-state" ? `<div class="spin spin-sm spin-dark"></div>` : iconTxt;
+  el.innerHTML=`<div class="gen-step-icon ${iconCls}">${iconContent}</div><div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text)">${labelTxt}</div><div style="font-size:12px;color:var(--text3)" id="${id}-sub">${subTxt}</div></div>`;
+}
+function setGenStepSub(id,txt){ const el=document.getElementById(id+'-sub'); if(el)el.textContent=txt; }
+function updateBar(pct,txt,pctTxt){
+  document.getElementById('gen-bar').style.width=pct+'%';
+  document.getElementById('gen-status-txt').textContent=txt;
+  document.getElementById('gen-pct-txt').textContent=pctTxt;
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+/* ── Single batch API call — 10 MCQs or 2 coding ── */
+async function genBatch(cfg, attempt=1){
+  const isCode=cfg.type==='coding';
+  const prompt = isCode
+    ? buildCodingPrompt(cfg)
+    : buildMCQPrompt(cfg);
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:4096,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+
+    if(!res.ok){
+      console.warn(`API HTTP error ${res.status}`);
+      if(attempt<3){await sleep(1500*attempt);return genBatch(cfg,attempt+1);}
+      return fallback(cfg);
+    }
+
+    const data=await res.json();
+
+    // Check for API-level error
+    if(data.error){
+      console.warn('API error:',data.error);
+      if(attempt<3){await sleep(1500*attempt);return genBatch(cfg,attempt+1);}
+      return fallback(cfg);
+    }
+
+    const raw=(data.content||[]).map(b=>b.type==='text'?b.text:'').join('').trim();
+
+    // Strip markdown fences if present
+    const clean=raw.replace(/^```(?:json)?\s*/,'').replace(/\s*```\s*$/,'').trim();
+
+    let arr;
+    try{
+      arr=JSON.parse(clean);
+    }catch(parseErr){
+      // Try to extract JSON array from the middle if there's extra text
+      const match=clean.match(/(\[[\s\S]*\])/);
+      if(match){
+        try{ arr=JSON.parse(match[1]); }
+        catch(e2){
+          console.warn('Parse failed after extraction, attempt',attempt);
+          if(attempt<3){await sleep(1000);return genBatch(cfg,attempt+1);}
+          return fallback(cfg);
+        }
+      } else {
+        console.warn('No JSON array found, attempt',attempt, 'raw:', raw.substring(0,200));
+        if(attempt<3){await sleep(1000);return genBatch(cfg,attempt+1);}
+        return fallback(cfg);
+      }
+    }
+
+    if(!Array.isArray(arr)||arr.length===0){
+      console.warn('Empty array returned, attempt',attempt);
+      if(attempt<3){await sleep(1000);return genBatch(cfg,attempt+1);}
+      return fallback(cfg);
+    }
+
+    // Validate & sanitise each question
+    return arr.map(q=>({
+      q: String(q.q||q.question||'Question text missing'),
+      options: isCode?[]:(q.options||['A','B','C','D']).slice(0,4),
+      answer: typeof q.answer==='number'?q.answer:0,
+      explanation: String(q.explanation||''),
+      marks: cfg.marks,
+      section: cfg.section,
+      type: cfg.type
+    }));
+
+  }catch(e){
+    console.warn('Fetch error attempt',attempt,':',e);
+    if(attempt<3){await sleep(1500*attempt);return genBatch(cfg,attempt+1);}
+    return fallback(cfg);
+  }
+}
+
+function buildMCQPrompt(cfg){
+  return `You are an expert assessment designer creating questions for MNC company recruitment (TCS, Infosys, Wipro, Accenture, Cognizant).
+
+Task: Generate exactly ${cfg.count} ${cfg.section==='aptitude'?'aptitude':'technical MCQ'} questions.
+Topics: ${cfg.topic}
+${cfg.extra?'Additional instruction: '+cfg.extra:''}
+
+Rules:
+1. Each question MUST have exactly 4 answer options
+2. answer field is the 0-based index of the correct option (0=first, 1=second, 2=third, 3=fourth)
+3. Make questions varied in difficulty and sub-topic
+4. For aptitude: use actual numbers and calculations
+5. For technical: mix conceptual, code-output, and scenario questions
+6. Keep each question concise but clear
+
+You MUST respond with ONLY a JSON array. No preamble, no explanation, no markdown fences.
+The array must contain exactly ${cfg.count} objects in this exact format:
+[{"q":"question text here","options":["first option","second option","third option","fourth option"],"answer":0,"explanation":"why this answer is correct"}]`;
+}
+
+function buildCodingPrompt(cfg){
+  return `You are an expert assessment designer creating coding problems for MNC company interviews.
+
+Task: Generate exactly 2 coding/practical problems.
+Domain: ${cfg.topic}
+
+Rules:
+1. Each problem must have a clear problem statement
+2. Include sample input and expected output
+3. State constraints clearly
+4. Medium to hard difficulty (MNC interview level)
+5. Make the 2 problems test different skills
+
+You MUST respond with ONLY a JSON array. No preamble, no markdown fences.
+[{"q":"Full problem statement with example input/output and constraints","explanation":"approach and key concepts to solve this"}]`;
+}
+
+function fallback(cfg){
+  if(cfg.type==='coding'){
+    return [
+      {q:`Problem 1: Write a program to find all pairs in an array that sum to a given target value.\n\nExample:\nInput: arr = [2, 7, 4, 0, 9, 5, 1, 3], target = 7\nOutput: (2,5), (7,0), (3,4)\n\nConstraints: Array size 1-10000, values -10000 to 10000`,explanation:'Use a hash set for O(n) solution',marks:10,section:'coding',type:'coding'},
+      {q:`Problem 2: Given a string, find the length of the longest substring without repeating characters.\n\nExample:\nInput: "abcabcbb"\nOutput: 3 (substring "abc")\n\nInput: "bbbbb"\nOutput: 1\n\nConstraints: 0 <= string length <= 50000`,explanation:'Sliding window with hash map',marks:10,section:'coding',type:'coding'}
+    ];
+  }
+  // Real fallback questions so the test is never empty
+  const aptFallbacks=[
+    {q:'If a train travels 360 km in 4 hours, what is its speed in km/h?',options:['80 km/h','90 km/h','100 km/h','110 km/h'],answer:1,explanation:'Speed = Distance/Time = 360/4 = 90 km/h'},
+    {q:'What is 15% of 240?',options:['32','36','40','44'],answer:1,explanation:'15% of 240 = 0.15 × 240 = 36'},
+    {q:'Find the next number: 2, 6, 18, 54, ?',options:['108','162','216','270'],answer:1,explanation:'Each term is multiplied by 3: 54 × 3 = 162'},
+    {q:'A shopkeeper buys an item for ₹800 and sells it for ₹1000. What is the profit percentage?',options:['20%','22%','25%','28%'],answer:2,explanation:'Profit% = (200/800)×100 = 25%'},
+    {q:'If 8 workers complete a job in 12 days, how many days will 6 workers take?',options:['14 days','16 days','18 days','20 days'],answer:1,explanation:'Work = 8×12=96 units; Days = 96/6 = 16'},
+    {q:'A sum of ₹5000 earns simple interest of ₹1500 in 3 years. What is the rate per annum?',options:['8%','9%','10%','12%'],answer:2,explanation:'R = (SI×100)/(P×T) = (1500×100)/(5000×3) = 10%'},
+    {q:'Two numbers are in the ratio 3:5. If their sum is 96, find the larger number.',options:['54','60','62','66'],answer:1,explanation:'3x+5x=96 → x=12 → larger=5×12=60'},
+    {q:'A pipe fills a tank in 6 hours. Another pipe empties it in 10 hours. If both are open, how long to fill the tank?',options:['12 hrs','14 hrs','15 hrs','18 hrs'],answer:2,explanation:'Net rate=1/6-1/10=1/15; Time=15 hrs'},
+    {q:'Find the odd one out: 3, 5, 7, 9, 11',options:['3','5','9','11'],answer:2,explanation:'9 is not a prime number; rest are prime'},
+    {q:'If A is the brother of B, B is the sister of C, and C is the son of D, how is D related to A?',options:['Father','Mother','Uncle','Either Father or Mother'],answer:3,explanation:'D is the parent of C; C is related to B and A through B; D could be father or mother of A'},
+  ];
+  const techFallbacks=[
+    {q:'Which data structure uses LIFO (Last In First Out) principle?',options:['Queue','Stack','Linked List','Tree'],answer:1,explanation:'Stack uses LIFO — last element pushed is the first to be popped'},
+    {q:'What is the time complexity of binary search?',options:['O(n)','O(log n)','O(n log n)','O(1)'],answer:1,explanation:'Binary search divides the array in half each iteration giving O(log n)'},
+    {q:'Which SQL keyword removes duplicate rows from a result?',options:['UNIQUE','DISTINCT','FILTER','REMOVE'],answer:1,explanation:'SELECT DISTINCT eliminates duplicate rows'},
+    {q:'What does API stand for?',options:['Application Programming Interface','Applied Program Index','Automated Process Integration','Application Process Interaction'],answer:0,explanation:'API = Application Programming Interface'},
+    {q:'Which HTTP status code means "Not Found"?',options:['200','301','404','500'],answer:2,explanation:'404 is the standard HTTP status for resource not found'},
+    {q:'What is the output of: print(type([]))?',options:["<class 'list'>",'[]','list','None'],answer:0,explanation:'type([]) returns the list class object, printed as <class "list">'},
+    {q:'Which of the following is NOT a valid Python data type?',options:['tuple','frozenset','char','bytes'],answer:2,explanation:'Python has no "char" type — single characters are just strings of length 1'},
+    {q:'In OOP, what is encapsulation?',options:['Creating multiple objects from one class','Hiding internal data and exposing only necessary methods','Inheriting properties from parent class','Overriding methods in child class'],answer:1,explanation:'Encapsulation is the bundling of data with methods and restricting direct access'},
+    {q:'What does the "git pull" command do?',options:['Creates a new branch','Pushes local commits to remote','Fetches and merges remote changes','Deletes a remote branch'],answer:2,explanation:'git pull fetches changes from remote and merges them into the current branch'},
+    {q:'Which of the following is a NoSQL database?',options:['MySQL','PostgreSQL','MongoDB','SQLite'],answer:2,explanation:'MongoDB is a document-oriented NoSQL database; the others are relational SQL databases'},
+  ];
+  if(cfg.section==='aptitude'){
+    const pool=[...aptFallbacks,...aptFallbacks,...aptFallbacks];
+    return pool.slice(0,cfg.count).map(q=>({...q,marks:cfg.marks,section:'aptitude',type:'mcq'}));
+  }
+  const pool=[...techFallbacks,...techFallbacks,...techFallbacks];
+  return pool.slice(0,cfg.count).map(q=>({...q,marks:cfg.marks,section:'mcq',type:'mcq'}));
+}
+
+/* ══ SIDEBAR & RENDER ══ */
+const SEC_META={
+  aptitude:{label:'Aptitude',cls:'tag-blue'},
+  mcq:{label:'Technical MCQ',cls:'tag-green'},
+  coding:{label:'Coding',cls:'tag-amber'}
+};
+
+function buildSidebar(){
+  const sb=document.getElementById('test-sidebar'); sb.innerHTML='';
+  ['aptitude','mcq','coding'].forEach(sec=>{
+    const idxs=allQs.map((q,i)=>q.section===sec?i:-1).filter(i=>i>=0);
+    if(!idxs.length)return;
+    const wrap=document.createElement('div'); wrap.className='sb-sec';
+    const title=document.createElement('div'); title.className='sb-sec-title';
+    title.textContent=SEC_META[sec].label;
+    const dots=document.createElement('div'); dots.className='sb-dots';
+    idxs.forEach(i=>{
+      const d=document.createElement('button'); d.className='qdot'; d.id='dot-'+i;
+      d.textContent=i+1; d.onclick=()=>{curIdx=i;renderQ();};
+      dots.appendChild(d);
+    });
+    wrap.appendChild(title); wrap.appendChild(dots); sb.appendChild(wrap);
+  });
+}
+
+function renderQ(){
+  const q=allQs[curIdx]; if(!q)return;
+  const si=SEC_META[q.section];
+  const secTotal=allQs.filter(x=>x.section===q.section).length;
+  const secPos=allQs.filter((x,i2)=>x.section===q.section&&i2<=curIdx).length;
+  document.getElementById('q-num-lbl').textContent=`Q${curIdx+1} of ${allQs.length}  ·  ${secPos}/${secTotal} in section`;
+  document.getElementById('q-marks-lbl').textContent=`${q.marks} mark${q.marks>1?'s':''}`;
+  document.getElementById('q-sec-tag').textContent=si.label;
+  document.getElementById('q-sec-tag').className='tag '+si.cls;
+  document.getElementById('q-text').textContent=q.q;
+  const optsEl=document.getElementById('q-opts');
+  const codeEl=document.getElementById('q-code-area');
+  if(q.type==='coding'){
+    optsEl.innerHTML=''; codeEl.style.display='block';
+    document.getElementById('code-editor').value=codeAns[curIdx]||'';
+    document.getElementById('code-saved').style.display='none';
+  } else {
+    codeEl.style.display='none'; optsEl.innerHTML='';
+    (q.options||[]).forEach((opt,i)=>{
+      const b=document.createElement('button');
+      b.className='opt'+(answers[curIdx]===i?' sel':'');
+      b.innerHTML=`<span class="opt-ltr">${String.fromCharCode(65+i)}</span><span>${opt}</span>`;
+      b.onclick=()=>{if(submitted||disqualified)return;answers[curIdx]=i;document.querySelectorAll('.opt').forEach((x,j)=>x.className='opt'+(j===i?' sel':''));updDots();};
+      optsEl.appendChild(b);
+    });
+  }
+  document.getElementById('btn-prev').disabled=curIdx===0;
+  document.getElementById('btn-next').textContent=curIdx===allQs.length-1?'Finish':'Next';
+  updDots();
+}
+
+function updDots(){
+  allQs.forEach((_,i)=>{
+    const d=document.getElementById('dot-'+i);
+    if(d) d.className='qdot'+(answers[i]!==undefined?' answered':'')+(i===curIdx?' current':'');
+  });
+}
+
+function saveCode(){
+  codeAns[curIdx]=document.getElementById('code-editor').value;
+  answers[curIdx]='saved'; updDots();
+  const s=document.getElementById('code-saved'); s.style.display='inline';
+  setTimeout(()=>s.style.display='none',2000);
+}
+
+function qNav(dir){
+  if(dir===1&&curIdx===allQs.length-1){confirmSubmit();return;}
+  curIdx=Math.max(0,Math.min(allQs.length-1,curIdx+dir));
+  renderQ();
+}
+
+/* ══ TIMER ══ */
+function startTimer(){
+  const el=document.getElementById('timer');
+  timerInt=setInterval(()=>{
+    if(submitted||disqualified){clearInterval(timerInt);return;}
+    timeLeft--;
+    const m=Math.floor(timeLeft/60),s=timeLeft%60;
+    el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    el.className='timer-val'+(timeLeft<=300?' crit':timeLeft<=600?' warn':'');
+    if(timeLeft<=0){clearInterval(timerInt);autoSubmit();}
+  },1000);
+}
+
+function autoSubmit(){
+  if(submitted||disqualified)return;
+  doSubmit();
+}
+
+/* ══ STRICT PROCTORING — 3 WARNINGS THEN DQ ══ */
+function triggerWarning(reason){
+  if(submitted||disqualified)return;
+  warnings++;
+  const wb=document.getElementById('warn-counter'); if(wb)wb.style.display='flex';
+  const wn=document.getElementById('warn-num'); if(wn)wn.textContent=warnings;
+
+  if(warnings>=3){
+    doDQ(reason);
+    return;
+  }
+
+  // Show warning overlay
+  document.getElementById('po-num').textContent=warnings;
+  document.getElementById('po-title').textContent=`Violation #${warnings} — ${warnings===1?'First':warnings===2?'Second':'Final'} Warning`;
+  const remaining=3-warnings;
+  document.getElementById('po-body').innerHTML=
+    `<strong style="color:#f87171">${reason}</strong><br><br>This violation has been recorded. You have <strong>${remaining} warning${remaining!==1?'s':''} remaining</strong> before your assessment is permanently disqualified.${warnings===2?'<br><br><span style="color:#fbbf24;font-weight:600">⚠️ FINAL WARNING — next violation will disqualify you immediately.</span>':''}`;
+  document.getElementById('proct-overlay').classList.add('show');
+}
+
+function dismissWarning(){
+  document.getElementById('proct-overlay').classList.remove('show');
+}
+
+function doDQ(reason){
+  disqualified=true; submitted=true;
+  clearInterval(timerInt);
+  document.getElementById('proct-overlay').classList.remove('show');
+  const refId='HITL-DQ-'+Date.now().toString().slice(-6);
+  document.getElementById('disq-ref').textContent=refId;
+  document.getElementById('disq-overlay').classList.add('show');
+
+  // Send DQ report to admin
+  const params={
+    to_email:ADMIN_EMAIL, ref_id:refId,
+    candidate_name:regData.name||'Unknown', candidate_email:regData.email||'—',
+    candidate_phone:regData.phone||'—', candidate_college:regData.college||'—',
+    candidate_degree:regData.degree||'—', candidate_year:regData.year||'—',
+    candidate_cgpa:regData.cgpa||'N/A', course:(COURSES[selCourseId]||{name:'—'}).name,
+    score_total:'DISQUALIFIED', score_aptitude:'—', score_mcq:'—', score_coding:'—',
+    score_pct:'DQ', status:`DISQUALIFIED — 3 proctoring violations. Last: ${reason}`,
+    violations:3, answer_detail:'Assessment was terminated due to repeated proctoring violations.',
+    submitted_at:new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'})
+  };
+  try{emailjs.init(EMAILJS_KEY);emailjs.send(EMAILJS_SVC,EMAILJS_TPL,params);}catch(e){}
+  if(camStream)camStream.getTracks().forEach(t=>t.stop());
+}
+
+function setupProctoring(){
+  // Tab switch / window blur
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden&&!submitted&&!disqualified)
+      triggerWarning('Tab switch or window change detected.');
+  });
+
+  window.addEventListener('blur',()=>{
+    if(!submitted&&!disqualified)
+      triggerWarning('Window focus lost — you moved away from the assessment.');
+  });
+
+  // Right click
+  document.addEventListener('contextmenu',e=>{
+    if(!submitted&&!disqualified){e.preventDefault();triggerWarning('Right-click is disabled during the assessment.');}
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown',e=>{
+    if(submitted||disqualified)return;
+    const blocked=e.ctrlKey&&['c','v','a','u','s','p','f','g','h','j','k','l','n','r','t','w'].includes(e.key.toLowerCase());
+    const devtools=(e.key==='F12')||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()));
+    const print=e.key==='F5'||(e.ctrlKey&&e.key==='r');
+    if(blocked||devtools){e.preventDefault();triggerWarning('Keyboard shortcut blocked and recorded.');}
+    if(print){e.preventDefault();}
+  });
+
+  // Fullscreen exit (optional detect)
+  document.addEventListener('fullscreenchange',()=>{
+    if(!document.fullscreenElement&&!submitted&&!disqualified){
+      // Don't warn on fullscreen — not all browsers support forced fullscreen
+    }
+  });
+
+  // Copy paste
+  document.addEventListener('copy',e=>{if(!submitted&&!disqualified){e.preventDefault();triggerWarning('Copy is disabled during the assessment.');}});
+  document.addEventListener('paste',e=>{if(!submitted&&!disqualified){e.preventDefault();triggerWarning('Paste is disabled during the assessment.');}});
+}
+
+/* ══ SUBMIT ══ */
+function confirmSubmit(){
+  if(disqualified)return;
+  const un=allQs.filter((_,i)=>answers[i]===undefined).length;
+  if(un>0&&!confirm(`You have ${un} unanswered question(s). Submit anyway?`))return;
+  doSubmit();
+}
+
+async function doSubmit(){
+  if(submitted||disqualified)return;
+  submitted=true; clearInterval(timerInt);
+  document.getElementById('send-overlay').classList.add('show');
+
+  let apt=0,mcq=0,code=0;
+  allQs.forEach((q,i)=>{
+    if(q.section==='aptitude'&&answers[i]===q.answer) apt+=q.marks;
+    if(q.section==='mcq'&&answers[i]===q.answer) mcq+=q.marks;
+    if(q.section==='coding'&&codeAns[i]&&codeAns[i].trim().length>15) code+=Math.round(q.marks*0.7);
+  });
+  const total=apt+mcq+code;
+  const pct=Math.round((total/100)*100);
+  const refId='HITL-'+Date.now().toString().slice(-6)+'-'+Math.floor(Math.random()*900+100);
+
+  let detail='';
+  allQs.forEach((q,i)=>{
+    if(q.type==='coding'){
+      detail+=`\n[CODING] Q${i+1}: ${q.q.substring(0,80)}...\nAnswer: ${(codeAns[i]||'NOT ATTEMPTED').substring(0,300)}\n${'─'.repeat(48)}\n`;
+    } else {
+      const chosen=answers[i]!==undefined?`${String.fromCharCode(65+answers[i])}. ${q.options[answers[i]]}`:'NOT ANSWERED';
+      const correct=`${String.fromCharCode(65+q.answer)}. ${q.options[q.answer]}`;
+      const ok=answers[i]===q.answer?'✓':'✗';
+      detail+=`[${q.section.toUpperCase()}] Q${i+1} ${ok}: ${q.q.substring(0,80)}\n  Selected : ${chosen}\n  Correct  : ${correct}\n`;
+    }
+  });
+
+  const params={
+    to_email:ADMIN_EMAIL, ref_id:refId,
+    candidate_name:regData.name, candidate_email:regData.email,
+    candidate_phone:regData.phone, candidate_college:regData.college,
+    candidate_degree:regData.degree, candidate_year:regData.year,
+    candidate_cgpa:regData.cgpa, course:COURSES[selCourseId].name,
+    score_total:total+' / 100',
+    score_aptitude:apt+' / 60',
+    score_mcq:mcq+' / 20',
+    score_coding:code+' / 20',
+    score_pct:pct+'%',
+    status:'COMPLETED',
+    violations:warnings,
+    answer_detail:detail,
+    submitted_at:new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'})
+  };
+
+  try{emailjs.init(EMAILJS_KEY);await emailjs.send(EMAILJS_SVC,EMAILJS_TPL,params);}
+  catch(e){console.warn('Email failed:',e);}
+
+  document.getElementById('send-overlay').classList.remove('show');
+  document.getElementById('done-ref').textContent=refId;
+  document.getElementById('done-name').textContent=regData.name;
+  showPage('pg-done');
+  if(camStream)camStream.getTracks().forEach(t=>t.stop());
+}
+</script>
+</body>
+</html>
